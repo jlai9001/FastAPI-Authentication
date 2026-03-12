@@ -1,5 +1,5 @@
 from fastapi import FastAPI,HTTPException,Depends
-from schemas import UserCreate,UserResponse,Token
+from schemas import UserCreate,UserResponse,Token,PurchaseRequest
 # authentication
 from datetime import timedelta
 from fastapi.security import OAuth2PasswordRequestForm
@@ -171,3 +171,35 @@ async def logout(token: str = Depends(oauth2_scheme)):
 @app.get("/stripe-test",tags=["Stripe"])
 async def stripe_test():
     return {"loaded": stripe.api_key is not None}
+
+@app.post("/create-checkout-session",tags=["Stripe"])
+async def create_checkout_session(purchase:PurchaseRequest):
+    session = stripe.checkout.Session.create(
+        mode="payment",
+        success_url="http://localhost:8000/success",
+        cancel_url="http://localhost:8000/cancel",
+        line_items=[
+            {
+                "price_data": {
+                    "currency": "usd",
+                    "product_data": {
+                        "name": purchase.name
+                    },
+                    "unit_amount": purchase.price * 100
+                },
+                "quantity": 1
+            }
+        ]
+    )
+    return {
+        "checkout_url":session.url
+    }
+# payment success test page
+@app.get("/success")
+async def payment_success():
+    return {"message": "Payment successful"}
+
+# payment canceled test page
+@app.get("/cancel")
+async def payment_cancel():
+    return {"message": "Payment cancelled"}
