@@ -11,10 +11,15 @@ from auth import(
     oauth2_scheme,
     default_password
 )
-
 import bcrypt
+# stripe
+import os
+import stripe
 
+# FastAPI app
 app = FastAPI()
+# Stripe
+stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
 
 test_database = {
     1: {"id":1,"email":"jonathan@email.com","logged_in":False,
@@ -161,3 +166,8 @@ async def logout(token: str = Depends(oauth2_scheme)):
         "message": f'{current_user["email"]} is now logged out',
         "user": current_user
     }
+
+# stripe
+@app.get("/stripe-test",tags=["Stripe"])
+async def stripe_test():
+    return {"loaded": stripe.api_key is not None}
