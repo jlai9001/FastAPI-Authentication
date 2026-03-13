@@ -1,5 +1,5 @@
 from fastapi import FastAPI,HTTPException,Depends
-from schemas import UserCreate,UserResponse,Token,PurchaseRequest
+from schemas import UserCreate,UserResponse,Token,PurchaseRequest,FileRequest
 # authentication
 from datetime import timedelta
 from fastapi.security import OAuth2PasswordRequestForm
@@ -20,6 +20,8 @@ import stripe
 app = FastAPI()
 # Stripe
 stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
+
+
 
 test_database = {
     1: {"id":1,"email":"jonathan@email.com","logged_in":False,
@@ -203,3 +205,9 @@ async def payment_success():
 @app.get("/cancel")
 async def payment_cancel():
     return {"message": "Payment cancelled"}
+
+
+# enum test - file upload
+@app.get("/upload")
+async def upload_file(data: FileRequest):
+    return{"type_recieved":data.file_type}

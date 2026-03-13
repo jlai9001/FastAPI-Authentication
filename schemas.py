@@ -1,4 +1,6 @@
 from pydantic import BaseModel
+from enum import Enum
+
 
 class UserCreate(BaseModel):
     email:str
@@ -19,3 +21,13 @@ class Token(BaseModel):
 class PurchaseRequest(BaseModel):
     name: str
     price: int
+
+# File Types (Enum)
+class FileType(str, Enum):
+    pdf = "pdf"
+    image = "image"
+    text ="text"
+
+class FileRequest(BaseModel):
+    filename: str
+    file_type: FileType
